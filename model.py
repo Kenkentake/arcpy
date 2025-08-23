@@ -9,6 +9,12 @@ class OrderLine:
     sku: str
     qty: int
 
+
+def allocate(line: OrderLine, batches: list["Batch"]) -> str:
+    batch = next(b for b in sorted(batches) if b.can_allocate(line))
+    batch.allocate(line)
+    return batch.reference
+
 class Batch:
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
         self.reference = ref
