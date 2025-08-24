@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     orderid: str
     sku: str
@@ -17,16 +17,16 @@ def allocate(line: OrderLine, batches: list["Batch"]) -> str:
     try:
         batch = next(b for b in sorted(batches) if b.can_allocate(line))
         batch.allocate(line)
+        return batch.reference
     except StopIteration:
         raise OutOfStock(f"Out of stock for sku {line.sku}")
-    return batch.reference
 
 class Batch:
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
         self.reference = ref
         self.sku = sku
         self.eta = eta
-        self._purchased_quantitiy = qty
+        self._purchased_quantity = qty
         self._allocations = set()  # type: set[OrderLine]
     
     def __eq__(self, other):
@@ -58,7 +58,7 @@ class Batch:
     
     @property
     def available_quantity(self) -> int:
-        return self._purchased_quantitiy - self.allocated_quantity
+        return self._purchased_quantity - self.allocated_quantity
     
     def can_allocate(self, line: OrderLine) -> bool:
         return self.sku == line.sku and self.available_quantity >= line.qty
