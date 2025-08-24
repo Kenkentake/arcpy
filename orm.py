@@ -10,8 +10,8 @@ order_lines = Table(
     "order_lines",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("orderid", String(255)),
     Column("sku", String(255)),
+    Column("qty", Integer, nullable=False),
     Column("orderid", String(255))
 )
 
